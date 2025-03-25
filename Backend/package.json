@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "extension",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samp83/Extension-Cassandra-Sami.git"
+  },
+  "keywords": [
+    "extension",
+    "copy"
+  ],
+  "author": "Cassandra-Sami",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Samp83/Extension-Cassandra-Sami/issues"
+  },
+  "homepage": "https://github.com/Samp83/Extension-Cassandra-Sami#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  }
+}
