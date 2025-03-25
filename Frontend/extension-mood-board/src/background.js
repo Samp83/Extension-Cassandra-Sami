@@ -1,5 +1,10 @@
-const api = typeof browser !== "undefined" ? browser : chrome;
+const api = typeof browser !== 'undefined' ? browser : chrome;
 
-api.runtime.onInstalled.addListener(() => {
-  console.log("Moodboard extension installed");
+api.browserAction.onClicked.addListener(() => {
+  api.windows.create({
+    url: 'index.html',
+    type: 'popup',
+    width: 400,
+    height: 600
+  });
 });
