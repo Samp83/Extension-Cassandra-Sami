@@ -1,17 +1,17 @@
 {
-    "manifest_version": 3,
+    "manifest_version": 2,
     "name": "Moodboard",
     "version": "1.0",
     "description": "Capture and organize content into themed moodboards",
-    "permissions": ["tabs", "storage", "scripting", "activeTab"],
-    "host_permissions": ["<all_urls>"],
+    "permissions": ["tabs", "storage", "activeTab"],
     "background": {
-      "service_worker": "background.js"
+      "scripts": ["background.js"],
+      "persistent": false
     },
-    "action": {
+    "browser_action": {
       "default_icon": "icon.png",
-      "default_title": "Open Moodboard",
-      "default_popup": "index.html"
+      "default_popup": "index.html",
+      "default_title": "Moodboard"
     },
     "content_scripts": [
       {
@@ -19,11 +19,6 @@
         "js": ["contentScript.js"]
       }
     ],
-    "web_accessible_resources": [
-      {
-        "resources": ["assets/*"],
-        "matches": ["<all_urls>"]
-      }
-    ]
+    "web_accessible_resources": ["assets/*"]
   }
   
