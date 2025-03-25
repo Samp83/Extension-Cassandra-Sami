@@ -1,20 +1,31 @@
-// contentScript.js
-
-// This script will run in the context of a webpage and can interact with the DOM.
-
-// Example: Highlight all paragraphs on the page
-(function () {
-    console.log("Content script loaded!");
-
-    // Function to highlight all paragraphs
-    function highlightParagraphs() {
-        const paragraphs = document.querySelectorAll("p");
-        paragraphs.forEach((p) => {
-            p.style.backgroundColor = "yellow";
-        });
-        console.log(`${paragraphs.length} paragraphs highlighted.`);
+document.addEventListener("mouseup", () => {
+    const selection = window.getSelection();
+    const selectedText = selection.toString();
+  
+    if (selectedText) {
+      chrome.storage.local.set({ droppedContent: { type: "text", content: selectedText } });
     }
+  });
 
-    // Run the function when the DOM is fully loaded
-    document.addEventListener("DOMContentLoaded", highlightParagraphs);
-})();
+  document.addEventListener("contextmenu", (e) => {
+    const target = e.target;
+  
+    if (target.tagName === "IMG") {
+      chrome.storage.local.set({ droppedContent: { type: "image", content: target.src } });
+    }
+  
+    if (target.tagName === "VIDEO") {
+      chrome.storage.local.set({ droppedContent: { type: "video", content: target.currentSrc } });
+    }
+  });
+  
+  chrome.storage.local.get("droppedContent", (result) => {
+    setContent(result.droppedContent);
+    chrome.storage.local.remove("droppedContent");
+  });
+
+  chrome.sidePanel.setOptions({
+    path: "index.html",
+    enabled: true
+  });
+  

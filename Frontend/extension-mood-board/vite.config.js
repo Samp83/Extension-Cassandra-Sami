@@ -15,15 +15,17 @@ export default defineConfig({
       input: {
         // main UI
         index: resolve(__dirname, 'index.html'),
+        
 
         // background & content scripts
-        //background: resolve(__dirname, 'src/background.js'),
+        background: resolve(__dirname, 'src/background.js'),
         content: resolve(__dirname, 'src/contentScript.js'),
+        
       },
       output: {
         entryFileNames: assetInfo => {
           // name background and content properly for manifest.json
-          //if (assetInfo.name === 'background') return 'background.js'
+          if (assetInfo.name === 'background') return 'background.js'
           if (assetInfo.name === 'content') return 'contentScript.js'
           return '[name].js'
         }
