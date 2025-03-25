@@ -3,6 +3,27 @@ import { useState } from "react";
 function App() {
   const [droppedContent, setDroppedContent] = useState(null);
 
+
+  const convertImageUrlToDataURL = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL);
+      };
+      img.onerror = function () {
+        reject(new Error("Impossible de charger l'image depuis l'URL."));
+      };
+      img.src = url;
+    });
+  };
+
   const handleDrop = async (e) => {
     e.preventDefault();
     const data = e.dataTransfer;
@@ -34,21 +55,18 @@ function App() {
     if (data.types.includes("text/uri-list")) {
       const url = data.getData("text/uri-list");
   
-      // Si c'est une image, on essaie de fetch (Firefox fallback)
-      if (url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i)) {
-        try {
-          const response = await fetch(url);
-          const blob = await response.blob();
-          const reader = new FileReader();
-          reader.onload = () => {
-            setDroppedContent({ type: "image", content: reader.result });
-          };
-          reader.readAsDataURL(blob);
-          return;
-        } catch (err) {
-          console.error("Erreur fetch image:", err);
+        if (url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i)) {
+          try {
+            const dataURL = await convertImageUrlToDataURL(url);
+            setDroppedContent({ type: "image", content: dataURL });
+            return;
+          } catch (err) {
+            console.error("Erreur conversion image:", err);
+            // si ça rate, on affiche au moins le lien
+            setDroppedContent({ type: "url", content: url });
+            return;
+          }
         }
-      }
   
       // Sinon, juste un lien
       setDroppedContent({ type: "url", content: url });
