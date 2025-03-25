@@ -1,4 +1,3 @@
-// controllers/profile.controller.js
 const { createNewProfile, updateExistingProfile, deleteExistingProfile } = require('../services/profile.service');
 
 const createProfileHandler = async (req, res) => {

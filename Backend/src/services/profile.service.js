@@ -1,4 +1,3 @@
-// services/profile.service.js
 const { createProfile, updateProfile, deleteProfile } = require('../repositories/profile.repository');
 
 const createNewProfile = async (nom, couleur) => {

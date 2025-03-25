@@ -1,4 +1,3 @@
-// repositories/profile.repository.js
 const prisma = require('../../prisma/client');
 
 const createProfile = async ({ nom, couleur }) => {
