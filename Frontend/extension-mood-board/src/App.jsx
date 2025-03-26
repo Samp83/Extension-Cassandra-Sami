@@ -2,28 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { useCreateBoard } from "./hooks/useCreateBoard";
 import { useCreateElement } from "./hooks/useCreateElement";
 import { useGetAllBoards } from "./hooks/useGetAllBoards";
-import { useGetElementsByBoard } from "./hooks/useGetElementsByBoard";
 import BoardsList from "./BoardsList";
+import "./App.css"; // <- Don't forget this!
 
 function App() {
   const [items, setItems] = useState([]);
   const [showBoards, setShowBoards] = useState(false);
   const containerRef = useRef(null);
 
-  const {
-    boards,
-    isLoading,
-    error: getAllBoardsError,
-    refetch,
-  } = useGetAllBoards();
-
-  const {
-    createBoard,
-    createdBoard,
-    isCreating,
-    error: createBoardError,
-  } = useCreateBoard();
-
+  const { boards, isLoading, error: getAllBoardsError, refetch } = useGetAllBoards();
+  const { createBoard, createdBoard, isCreating, error: createBoardError } = useCreateBoard();
   const { createElement } = useCreateElement();
 
   const deleteItem = (id) => {
@@ -86,10 +74,8 @@ function App() {
       tempDiv.innerText = text;
 
       document.body.appendChild(tempDiv);
-
       const measuredWidth = tempDiv.offsetWidth;
       const measuredHeight = tempDiv.offsetHeight;
-
       document.body.removeChild(tempDiv);
 
       setItems((prev) => [
@@ -138,35 +124,7 @@ function App() {
     }
   };
 
-  const loadBoardElements = async (boardId) => {
-    try {
-      const res = await fetch(`http://localhost:3000/api/boards/${boardId}/elements`);
-      const data = await res.json();
-      console.log("Chargement du board :", boardId, data);
-  
-      // Transformer les éléments en format local `items`
-      const loadedItems = data.map((el) => ({
-        id: el.id,
-        x: el.posX,
-        y: el.posY,
-        width: el.width,
-        height: el.height,
-        type: el.type,
-        content: el.content,
-      }));
-  
-      setItems(loadedItems);
-      setShowBoards(false); // on peut fermer la liste
-    } catch (err) {
-      console.error("Erreur chargement éléments du board", err);
-      alert("Erreur lors du chargement des éléments.");
-    }
-  };
-  
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const startDrag = (e, id) => {
     e.stopPropagation();
@@ -196,89 +154,80 @@ function App() {
     window.addEventListener("mouseup", stopDrag);
   };
 
+  const loadBoardElements = async (boardId) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/boards/${boardId}/elements`);
+      const data = await res.json();
+
+      const loadedItems = data.map((el) => ({
+        id: el.id,
+        x: el.posX,
+        y: el.posY,
+        width: el.width,
+        height: el.height,
+        type: el.type,
+        content: el.content,
+      }));
+
+      setItems(loadedItems);
+      setShowBoards(false);
+    } catch (err) {
+      console.error("Erreur chargement éléments du board", err);
+      alert("Erreur lors du chargement des éléments.");
+    }
+  };
+
+  const saveBoardWithElements = async () => {
+    const title = prompt("Titre du board :");
+    const description = prompt("Description du board :");
+    if (!title) return;
+
+    const newBoard = await createBoard(title, description);
+    refetch();
+
+    if (!newBoard || !newBoard.id) return;
+
+    for (const item of items) {
+      await createElement(
+        item.type,
+        item.content,
+        item.x,
+        item.y,
+        item.width,
+        item.height,
+        newBoard.id
+      );
+    }
+
+    alert("Board et éléments enregistrés !");
+    setItems([]);
+  };
+
   return (
     <div
       ref={containerRef}
+      className="moodboard-container"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      style={{
-        position: "relative",
-        width: "300%",
-        height: "100vh",
-        background: "#f9f9f9",
-        overflow: "hidden",
-      }}
     >
-      {/* HEADER */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          background: "#333",
-          color: "#fff",
-          padding: "10px 16px",
-          position: "sticky",
-          top: 0,
-          zIndex: 1001,
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "16px" }}>🧠 Moodboard Extension</h2>
-        <button
-          onClick={() => setShowBoards(!showBoards)}
-          style={{
-            background: "#555",
-            color: "#fff",
-            padding: "6px 10px",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: 12,
-          }}
-        >
-          📋 Mes boards
-        </button>
+      <header className="moodboard-header">
+        <h2>🧠 Moodboard Extension</h2>
+        <button onClick={() => setShowBoards(!showBoards)}>📋 Mes boards</button>
       </header>
 
-      {/* ITEMS DROPPÉS */}
       {items.map((item) => (
         <div
           key={item.id}
           onMouseDown={(e) => startDrag(e, item.id)}
+          className="moodboard-item"
           style={{
-            position: "absolute",
             top: item.y,
             left: item.x,
             width: item.width,
             height: item.height,
-            cursor: "move",
-            background: "#fff",
-            border: "1px solid #ccc",
-            boxShadow: "2px 2px 6px rgba(0,0,0,0.1)",
-            padding: 8,
-            overflow: "hidden",
-            borderRadius: 8,
           }}
         >
-          <button
-            onClick={() => deleteItem(item.id)}
-            style={{
-              position: "absolute",
-              top: 2,
-              right: 2,
-              background: "#f44336",
-              color: "#fff",
-              border: "none",
-              borderRadius: "50%",
-              width: 16,
-              height: 16,
-              cursor: "pointer",
-              fontSize: "10px",
-              lineHeight: "16px",
-              textAlign: "center",
-            }}
-            title="Supprimer"
-          >
+          <button onClick={() => deleteItem(item.id)} title="Supprimer">
             ×
           </button>
 
@@ -289,76 +238,32 @@ function App() {
             </a>
           )}
           {item.type === "image" && (
-            <img
-              src={item.content}
-              alt="drop"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                display: "block",
-                objectFit: "contain",
-              }}
-            />
+            <img src={item.content} alt="drop" />
           )}
         </div>
       ))}
 
-      {/* SAUVEGARDE DU BOARD + ÉLÉMENTS */}
-      <div style={{ position: "fixed", bottom: 10, left: 10 }}>
+      <div className="fixed-actions">
         <button
-          onClick={async () => {
-            const title = prompt("Titre du board :");
-            const description = prompt("Description du board :");
-            if (!title) return;
-
-            const newBoard = await createBoard(title, description);
-            refetch();
-
-            if (!newBoard || !newBoard.id) return;
-
-            for (const item of items) {
-              await createElement(
-                item.type,
-                item.content,
-                item.x,
-                item.y,
-                item.width,
-                item.height,
-                newBoard.id
-              );
-            }
-
-            alert("Board et éléments enregistrés !");
-            setItems([]);
-          }}
+          className="save-board-btn"
+          onClick={saveBoardWithElements}
           disabled={isCreating}
-          style={{
-            background: "#4caf50",
-            color: "white",
-            padding: "10px 16px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            opacity: isCreating ? 0.6 : 1,
-          }}
         >
           💾 Sauvegarder le board
         </button>
 
         {createdBoard && (
-          <p style={{ marginTop: 8, color: "#4caf50" }}>
+          <p className="board-success">
             Board créé : {createdBoard.title}
           </p>
         )}
         {createBoardError && (
-          <p style={{ marginTop: 8, color: "red" }}>
+          <p className="board-error">
             Erreur : {createBoardError.message}
           </p>
         )}
       </div>
 
-      {/* LISTE DES BOARDS */}
       <BoardsList
         visible={showBoards}
         boards={boards}

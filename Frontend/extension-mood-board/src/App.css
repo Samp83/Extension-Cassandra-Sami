@@ -1,42 +1,138 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Global reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  overflow: hidden;
+}
+
+/* Moodboard container */
+.moodboard-container {
+  position: relative;
+  width: 300%;
+  height: 100vh;
+  background: #f9f9f9;
+  overflow: hidden;
+}
+
+/* Header */
+.moodboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #333;
+  color: #fff;
+  padding: 10px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+}
+
+.moodboard-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.moodboard-header button {
+  background: #555;
+  color: #fff;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* Item block */
+.moodboard-item {
+  position: absolute;
+  cursor: move;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* Delete button */
+.moodboard-item button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 16px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Image */
+.moodboard-item img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Save button */
+.save-board-btn {
+  background: #4caf50;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.3s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.save-board-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.card {
-  padding: 2em;
+/* Fixed bottom left action area */
+.fixed-actions {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
 }
 
-.read-the-docs {
-  color: #888;
+/* Board success message */
+.board-success {
+  margin-top: 8px;
+  color: #4caf50;
+}
+
+/* Board error message */
+.board-error {
+  margin-top: 8px;
+  color: red;
+}
+
+/* Text content */
+.moodboard-item p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* URL content */
+.moodboard-item a {
+  color: #007acc;
+  text-decoration: underline;
+  word-break: break-all;
+  font-size: 13px;
 }
