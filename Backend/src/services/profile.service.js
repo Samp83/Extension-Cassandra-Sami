@@ -1,4 +1,14 @@
-const { createProfile, updateProfile, deleteProfile } = require('../repositories/profile.repository');
+const { getAllProfiles, getProfileById, createProfile, updateProfile, deleteProfile } = require('../repositories/profile.repository');
+
+
+const getAllProfilesService = async () => {
+  return await getAllProfiles();
+};
+
+const getProfileByIdService = async (id) => {
+  return await getProfileById(id);
+};
+
 
 const createNewProfile = async (nom, couleur) => {
   if (!nom) throw new Error('Le nom est obligatoire');
@@ -20,6 +30,8 @@ const deleteExistingProfile = async (id) => {
   };
   
   module.exports = {
+    getAllProfilesService,
+    getProfileByIdService,
     createNewProfile,
     updateExistingProfile,
     deleteExistingProfile,

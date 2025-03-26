@@ -1,5 +1,7 @@
 const express = require('express');
 const {
+  getAllProfilesHandler,
+  getProfileByIdHandler,
   createProfileHandler,
   updateProfileHandler,
   deleteProfileHandler
@@ -7,6 +9,8 @@ const {
 
 const router = express.Router();
 
+router.get('/profiles', getAllProfilesHandler);
+router.get('/profiles/:id', getProfileByIdHandler);
 router.post('/profiles', createProfileHandler);
 router.put('/profiles/:id', updateProfileHandler);
 router.delete('/profiles/:id', deleteProfileHandler); 

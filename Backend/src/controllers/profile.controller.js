@@ -1,4 +1,24 @@
-const { createNewProfile, updateExistingProfile, deleteExistingProfile } = require('../services/profile.service');
+const { getAllProfilesService, getProfileByIdService, createNewProfile, updateExistingProfile, deleteExistingProfile } = require('../services/profile.service');
+
+const getAllProfilesHandler = async (req, res) => {
+  try {
+    const profiles = await getAllProfilesService();
+    res.status(200).json(profiles);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const getProfileByIdHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const profile = await getProfileByIdService(id);
+    if (!profile) return res.status(404).json({ error: 'Profile non trouvé' });
+    res.status(200).json(profile);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 
 const createProfileHandler = async (req, res) => {
   try {
@@ -32,6 +52,8 @@ const deleteProfileHandler = async (req, res) => {
   };
   
   module.exports = {
+    getAllProfilesHandler,
+    getProfileByIdHandler,
     createProfileHandler,
     updateProfileHandler,
     deleteProfileHandler,
