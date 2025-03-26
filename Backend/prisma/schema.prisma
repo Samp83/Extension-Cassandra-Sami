@@ -7,76 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         Int         @id @default(autoincrement())
-  nom        String     @db.VarChar(255)
-  prenom     String     @db.VarChar(255)
-  email      String      @unique @db.VarChar(191)  
-  password   String      @db.VarChar(255)
-  isAdmin    Boolean    @default(false)
-  isLoggedIn Boolean    @default(false)
-  basket     Basket[]
-  userInfo   UserInfo[]
+model Profile {
+  id          Int              @id @default(autoincrement())
+  nom         String           @db.VarChar(255)
+  couleur     String?          @db.VarChar(50)
+
+  boardLinks  ProfileBoards[]
 }
 
-model Basket {
-  id             Int      @id @default(autoincrement())
-  userId         Int
-  basketItemId   Int?
-  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "basket_ibfk_1")
-  basketItem     BasketItem? @relation(fields: [basketItemId], references: [id], onDelete: Cascade, map: "basket_ibfk_2")
+model Boards {
+  id           Int              @id @default(autoincrement())
+  title        String           @db.VarChar(255)
+  description  String?          @db.Text
+  createdAt    DateTime         @default(now())
+
+  profileLinks ProfileBoards[]
+  elements     Element[]
 }
 
-model BasketItem {
-  id            Int      @id @default(autoincrement())
-  productId     Int?
-  productPrice  Float?   @db.Float
-  basket        Basket[]
-  product       Product? @relation(fields: [productId], references: [id], onDelete: Cascade, map: "basket_item_ibfk_1")
+model ProfileBoards {
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+
+  board     Boards  @relation(fields: [boardId], references: [id])
+  boardId   Int
+
+  
+  joinedAt  DateTime @default(now())
+
+  @@id([profileId, boardId])
 }
 
-model Product {
-  id                 Int                 @id @default(autoincrement())
-  name               String             @db.VarChar(255)
-  price              Float              @db.Float
-  fournisseur        String             @db.VarChar(255)
-  activePromoId      Int?
-  categoryId         Int
-  description        String             @db.VarChar(255) @default("placeholder")
-  image              String             @db.VarChar(255) @default("placeholder")
-  basketItem         BasketItem[]
-  promotions         Promotion?          @relation(fields: [activePromoId], references: [id], onDelete: Cascade, map: "product_ibfk_1")
-  category           ProductCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade, map: "product_ibfk_2")
-  promotedProducts   PromotedProduct[]
-}
+model Element {
+  id        Int      @id @default(autoincrement())
+  type      String   @db.VarChar(50)   
+  content   String   @db.Text          
+  posX      Float    @default(0)       
+  posY      Float    @default(0)       
+  width     Float?                     
+  height    Float?                     
+  createdAt DateTime @default(now())
 
-model ProductCategory {
-  id          Int       @id @default(autoincrement())
-  name        String   @db.VarChar(191)
-  description String   @db.VarChar(255)
-  products    Product[]
-}
-
-model PromotedProduct {
-  id         Int     @id @default(autoincrement())
-  productId  Int
-  name       String? @db.VarChar(255)
-  price      Float?  @db.Float
-  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "promoted_products_ibfk_1")
-}
-
-model Promotion {
-  id              Int       @id @default(autoincrement())
-  name            String   @db.VarChar(255)
-  priceReduction  Int?
-  products        Product[]
-}
-
-model UserInfo {
-  id           Int     @id @default(autoincrement())
-  userId       Int?
-  paymentMean  String? @db.VarChar(255)
-  paymentNum   String? @db.VarChar(255)
-  paymentDate  String? @db.VarChar(255)
-  user         User?   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "user_info_ibfk_1")
+  board     Boards   @relation(fields: [boardId], references: [id])
+  boardId   Int
 }

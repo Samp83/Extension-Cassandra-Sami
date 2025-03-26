@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { useCreateBoard } from "./hooks/useCreateBoard";
 
 function App() {
   const [items, setItems] = useState([]);
   const containerRef = useRef(null);
 
-  // Supprimer un item par ID
+  const { createBoard, createdBoard, isCreating, error } = useCreateBoard();
+
   const deleteItem = (id) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
@@ -26,7 +28,6 @@ function App() {
       content: ""
     };
 
-    // Drag d’un fichier (image locale)
     if (data.files.length > 0) {
       const file = data.files[0];
       const reader = new FileReader();
@@ -52,41 +53,39 @@ function App() {
 
     if (data.types.includes("text/plain")) {
       const text = data.getData("text/plain");
-    
-      // Crée un div temporaire pour mesurer le texte
+
       const tempDiv = document.createElement("div");
       tempDiv.style.position = "absolute";
       tempDiv.style.visibility = "hidden";
       tempDiv.style.width = "auto";
       tempDiv.style.height = "auto";
-      tempDiv.style.maxWidth = "400px"; // tu peux ajuster
+      tempDiv.style.maxWidth = "400px";
       tempDiv.style.padding = "1px";
       tempDiv.style.fontSize = "16px";
       tempDiv.style.fontFamily = "Arial, sans-serif";
       tempDiv.style.lineHeight = "1.4";
       tempDiv.innerText = text;
-    
+
       document.body.appendChild(tempDiv);
-    
+
       const measuredWidth = tempDiv.offsetWidth;
       const measuredHeight = tempDiv.offsetHeight;
-    
+
       document.body.removeChild(tempDiv);
-    
+
       setItems((prev) => [
         ...prev,
         {
           ...baseItem,
           type: "text",
           content: text,
-          width: measuredWidth + 1, // + padding
+          width: measuredWidth + 1,
           height: measuredHeight + 1
         }
       ]);
       return;
     }
 
-    // URL (souvent image glissée depuis Chrome)
     if (data.types.includes("text/uri-list")) {
       const url = data.getData("text/uri-list");
 
@@ -105,7 +104,6 @@ function App() {
         ]);
       };
       img.onerror = () => {
-        // pas une image ? afficher juste le lien
         setItems((prev) => [
           ...prev,
           {
@@ -160,14 +158,16 @@ function App() {
       onDragOver={handleDragOver}
       style={{
         position: "relative",
-        width: "10000%",
+        width: "1000%",
         height: "100vh",
         border: "2px dashed #aaa",
         overflow: "hidden",
         background: "#f9f9f9"
       }}
     >
-      <p style={{ padding: 10, fontWeight: "bold" }}>Glisse ici ton contenu 🎯</p>
+      <p style={{ padding: 10, fontWeight: "bold" }}>
+        Glisse ici ton contenu 🎯
+      </p>
 
       {items.map((item) => (
         <div
@@ -198,16 +198,16 @@ function App() {
               color: "#fff",
               border: "none",
               borderRadius: "50%",
-              width: 10,
-              height: 10,
+              width: 16,
+              height: 16,
               cursor: "pointer",
-              fontSize: "6px",
-              lineHeight: "10px",
-              
+              fontSize: "10px",
+              lineHeight: "16px",
+              textAlign: "center"
             }}
             title="Supprimer"
           >
-            
+            ×
           </button>
 
           {item.type === "text" && <p>{item.content}</p>}
@@ -230,6 +230,42 @@ function App() {
           )}
         </div>
       ))}
+
+      {/* Bouton sauvegarde board */}
+      <div style={{ position: "fixed", bottom: 10, left: 10 }}>
+        <button
+          onClick={() => {
+            const title = prompt("Titre du board :");
+            const description = prompt("Description du board :");
+            if (!title) return;
+
+            createBoard(title, description);
+          }}
+          disabled={isCreating}
+          style={{
+            background: "#4caf50",
+            color: "white",
+            padding: "10px 16px",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            opacity: isCreating ? 0.6 : 1
+          }}
+        >
+          💾 Sauvegarder le board
+        </button>
+        {createdBoard && (
+          <p style={{ marginTop: 8, color: "#4caf50" }}>
+            Board créé avec succès : {createdBoard.title}
+          </p>
+        )}
+        {error && (
+          <p style={{ marginTop: 8, color: "red" }}>
+            Erreur : {error.message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
