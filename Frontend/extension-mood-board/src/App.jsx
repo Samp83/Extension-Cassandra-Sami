@@ -1,109 +1,235 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function App() {
-  const [droppedContent, setDroppedContent] = useState(null);
+  const [items, setItems] = useState([]);
+  const containerRef = useRef(null);
 
-
-  const convertImageUrlToDataURL = (url) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        const dataURL = canvas.toDataURL("image/png");
-        resolve(dataURL);
-      };
-      img.onerror = function () {
-        reject(new Error("Impossible de charger l'image depuis l'URL."));
-      };
-      img.src = url;
-    });
+  // Supprimer un item par ID
+  const deleteItem = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleDrop = async (e) => {
     e.preventDefault();
     const data = e.dataTransfer;
-  
-    // 1. Fichier (image locale ou drag depuis Chrome)
+
+    const offsetX = e.nativeEvent.offsetX;
+    const offsetY = e.nativeEvent.offsetY;
+
+    const baseItem = {
+      id: Date.now(),
+      x: offsetX,
+      y: offsetY,
+      width: 200,
+      height: 100,
+      type: "text",
+      content: ""
+    };
+
+    // Drag d’un fichier (image locale)
     if (data.files.length > 0) {
       const file = data.files[0];
       const reader = new FileReader();
       reader.onload = () => {
-        setDroppedContent({
-          type: file.type.startsWith("image") ? "image" : "file",
-          content: reader.result
-        });
+        const img = new Image();
+        img.onload = () => {
+          setItems((prev) => [
+            ...prev,
+            {
+              ...baseItem,
+              type: "image",
+              content: reader.result,
+              width: img.width,
+              height: img.height
+            }
+          ]);
+        };
+        img.src = reader.result;
       };
       reader.readAsDataURL(file);
       return;
     }
-  
-    // 2. Texte (sélection, titre, etc.)
+
     if (data.types.includes("text/plain")) {
       const text = data.getData("text/plain");
-      if (text && !text.startsWith("http")) {
-        setDroppedContent({ type: "text", content: text });
-        return;
-      }
-    }
-  
-    // 3. URL (drag d'image dans Firefox ou lien)
-    if (data.types.includes("text/uri-list")) {
-      const url = data.getData("text/uri-list");
-  
-        if (url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i)) {
-          try {
-            const dataURL = await convertImageUrlToDataURL(url);
-            setDroppedContent({ type: "image", content: dataURL });
-            return;
-          } catch (err) {
-            console.error("Erreur conversion image:", err);
-            // si ça rate, on affiche au moins le lien
-            setDroppedContent({ type: "url", content: url });
-            return;
-          }
+    
+      // Crée un div temporaire pour mesurer le texte
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.visibility = "hidden";
+      tempDiv.style.width = "auto";
+      tempDiv.style.height = "auto";
+      tempDiv.style.maxWidth = "400px"; // tu peux ajuster
+      tempDiv.style.padding = "1px";
+      tempDiv.style.fontSize = "16px";
+      tempDiv.style.fontFamily = "Arial, sans-serif";
+      tempDiv.style.lineHeight = "1.4";
+      tempDiv.innerText = text;
+    
+      document.body.appendChild(tempDiv);
+    
+      const measuredWidth = tempDiv.offsetWidth;
+      const measuredHeight = tempDiv.offsetHeight;
+    
+      document.body.removeChild(tempDiv);
+    
+      setItems((prev) => [
+        ...prev,
+        {
+          ...baseItem,
+          type: "text",
+          content: text,
+          width: measuredWidth + 1, // + padding
+          height: measuredHeight + 1
         }
-  
-      // Sinon, juste un lien
-      setDroppedContent({ type: "url", content: url });
+      ]);
       return;
     }
+
+    // URL (souvent image glissée depuis Chrome)
+    if (data.types.includes("text/uri-list")) {
+      const url = data.getData("text/uri-list");
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        setItems((prev) => [
+          ...prev,
+          {
+            ...baseItem,
+            type: "image",
+            content: url,
+            width: img.width,
+            height: img.height
+          }
+        ]);
+      };
+      img.onerror = () => {
+        // pas une image ? afficher juste le lien
+        setItems((prev) => [
+          ...prev,
+          {
+            ...baseItem,
+            type: "url",
+            content: url,
+            width: 300,
+            height: 60
+          }
+        ]);
+      };
+      img.src = url;
+    }
   };
-  
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const startDrag = (e, id) => {
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      setItems((prev) =>
+        prev.map((el) =>
+          el.id === id ? { ...el, x: item.x + dx, y: item.y + dy } : el
+        )
+      );
+    };
+
+    const stopDrag = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", stopDrag);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopDrag);
+  };
 
   return (
     <div
+      ref={containerRef}
       onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={handleDragOver}
       style={{
+        position: "relative",
+        width: "10000%",
+        height: "100vh",
         border: "2px dashed #aaa",
-        padding: "2rem",
-        borderRadius: "12px",
-        textAlign: "center",
-        minHeight: "200px"
+        overflow: "hidden",
+        background: "#f9f9f9"
       }}
     >
-      {!droppedContent && <p>Glisse du texte, une image ou un lien ici !</p>}
+      <p style={{ padding: 10, fontWeight: "bold" }}>Glisse ici ton contenu 🎯</p>
 
-      {droppedContent?.type === "text" && <p>{droppedContent.content}</p>}
+      {items.map((item) => (
+        <div
+          key={item.id}
+          onMouseDown={(e) => startDrag(e, item.id)}
+          style={{
+            position: "absolute",
+            top: item.y,
+            left: item.x,
+            width: item.width,
+            height: item.height,
+            cursor: "move",
+            background: "#fff",
+            border: "1px solid #ccc",
+            boxShadow: "2px 2px 6px rgba(0,0,0,0.1)",
+            padding: 8,
+            overflow: "hidden",
+            borderRadius: 8
+          }}
+        >
+          <button
+            onClick={() => deleteItem(item.id)}
+            style={{
+              position: "absolute",
+              top: 2,
+              right: 2,
+              background: "#f44336",
+              color: "#fff",
+              border: "none",
+              borderRadius: "50%",
+              width: 10,
+              height: 10,
+              cursor: "pointer",
+              fontSize: "6px",
+              lineHeight: "10px",
+              
+            }}
+            title="Supprimer"
+          >
+            
+          </button>
 
-      {droppedContent?.type === "url" && (
-        <a href={droppedContent.content} target="_blank" rel="noreferrer">
-          {droppedContent.content}
-        </a>
-      )}
-
-      {droppedContent?.type === "image" && (
-        <img
-          src={droppedContent.content}
-          alt="Dropped"
-          style={{ maxWidth: "100%", borderRadius: "8px" }}
-        />
-      )}
+          {item.type === "text" && <p>{item.content}</p>}
+          {item.type === "url" && (
+            <a href={item.content} target="_blank" rel="noreferrer">
+              {item.content}
+            </a>
+          )}
+          {item.type === "image" && (
+            <img
+              src={item.content}
+              alt="drop"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                display: "block",
+                objectFit: "contain"
+              }}
+            />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
