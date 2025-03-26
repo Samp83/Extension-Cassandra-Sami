@@ -9,7 +9,7 @@ export const useUpdateProfile = () => {
       setIsUpdating(true);
       try {
         const res = await fetch(`http://localhost:3000/api/profiles/${profileId}`, {
-          method: "PATCH",
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedData),
         });
