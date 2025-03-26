@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useCreateBoard } from "./hooks/useCreateBoard";
+import { useGetAllBoards } from "./hooks/useGetAllBoards";
 import BoardsList from "./BoardsList"; // 💡 ton composant de liste
 
 function App() {
   const [items, setItems] = useState([]);
   const [showBoards, setShowBoards] = useState(false);
   const containerRef = useRef(null);
+  const {
+    boards,
+    isLoading,
+    error: getAllBoardsError,
+    refetch,
+  } = useGetAllBoards();
 
   const { createBoard, createdBoard, isCreating, error } = useCreateBoard();
 
@@ -27,7 +34,7 @@ function App() {
       width: 200,
       height: 100,
       type: "text",
-      content: ""
+      content: "",
     };
 
     if (data.files.length > 0) {
@@ -43,8 +50,8 @@ function App() {
               type: "image",
               content: reader.result,
               width: img.width,
-              height: img.height
-            }
+              height: img.height,
+            },
           ]);
         };
         img.src = reader.result;
@@ -82,8 +89,8 @@ function App() {
           type: "text",
           content: text,
           width: measuredWidth + 1,
-          height: measuredHeight + 1
-        }
+          height: measuredHeight + 1,
+        },
       ]);
       return;
     }
@@ -101,8 +108,8 @@ function App() {
             type: "image",
             content: url,
             width: img.width,
-            height: img.height
-          }
+            height: img.height,
+          },
         ]);
       };
       img.onerror = () => {
@@ -113,8 +120,8 @@ function App() {
             type: "url",
             content: url,
             width: 300,
-            height: 60
-          }
+            height: 60,
+          },
         ]);
       };
       img.src = url;
@@ -163,7 +170,7 @@ function App() {
         width: "100%",
         height: "100vh",
         background: "#f9f9f9",
-        overflow: "hidden"
+        overflow: "hidden",
       }}
     >
       {/* HEADER */}
@@ -177,7 +184,7 @@ function App() {
           padding: "10px 16px",
           position: "sticky",
           top: 0,
-          zIndex: 1001
+          zIndex: 1001,
         }}
       >
         <h2 style={{ margin: 0, fontSize: "16px" }}>🧠 Moodboard Extension</h2>
@@ -190,7 +197,7 @@ function App() {
             border: "none",
             borderRadius: "6px",
             cursor: "pointer",
-            fontSize: 12
+            fontSize: 12,
           }}
         >
           📋 Mes boards
@@ -214,7 +221,7 @@ function App() {
             boxShadow: "2px 2px 6px rgba(0,0,0,0.1)",
             padding: 8,
             overflow: "hidden",
-            borderRadius: 8
+            borderRadius: 8,
           }}
         >
           <button
@@ -232,7 +239,7 @@ function App() {
               cursor: "pointer",
               fontSize: "10px",
               lineHeight: "16px",
-              textAlign: "center"
+              textAlign: "center",
             }}
             title="Supprimer"
           >
@@ -253,7 +260,7 @@ function App() {
                 maxWidth: "100%",
                 maxHeight: "100%",
                 display: "block",
-                objectFit: "contain"
+                objectFit: "contain",
               }}
             />
           )}
@@ -263,12 +270,13 @@ function App() {
       {/* SAUVEGARDE DU BOARD */}
       <div style={{ position: "fixed", bottom: 10, left: 10 }}>
         <button
-          onClick={() => {
+          onClick={async () => {
             const title = prompt("Titre du board :");
             const description = prompt("Description du board :");
             if (!title) return;
 
-            createBoard(title, description);
+            await createBoard(title, description);
+            refetch(); // ✅ rafraîchit la liste après création
           }}
           disabled={isCreating}
           style={{
@@ -279,7 +287,7 @@ function App() {
             borderRadius: "8px",
             cursor: "pointer",
             fontWeight: "bold",
-            opacity: isCreating ? 0.6 : 1
+            opacity: isCreating ? 0.6 : 1,
           }}
         >
           💾 Sauvegarder le board
@@ -290,14 +298,18 @@ function App() {
           </p>
         )}
         {error && (
-          <p style={{ marginTop: 8, color: "red" }}>
-            Erreur : {error.message}
-          </p>
+          <p style={{ marginTop: 8, color: "red" }}>Erreur : {error.message}</p>
         )}
       </div>
 
       {/* LISTE DES BOARDS */}
-      <BoardsList visible={showBoards} />
+      <BoardsList
+        visible={showBoards}
+        boards={boards}
+        isLoading={isLoading}
+        getAllBoardsError={error}
+        refetch={refetch}
+      />
     </div>
   );
 }

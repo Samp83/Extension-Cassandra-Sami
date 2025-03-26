@@ -1,13 +1,32 @@
-import { useGetAllBoards } from "./hooks/useGetAllBoards";
 import { useUpdateBoard } from "./hooks/useUpdateBoard";
 import { useDeleteBoard } from "./hooks/useDeleteBoard";
 
-export default function BoardsList({ visible }) {
-  const { board: boards, isLoading, error } = useGetAllBoards();
+export default function BoardsList({ visible, refetch, boards, isLoading, error }) {
   const { updateBoard } = useUpdateBoard();
   const { deleteBoard } = useDeleteBoard();
 
   if (!visible) return null;
+
+  const handleUpdate = async (board) => {
+    const newTitle = prompt("Nouveau titre :", board.title);
+    const newDesc = prompt("Nouvelle description :", board.description);
+    if (!newTitle) return;
+
+    await updateBoard(board.id, {
+      title: newTitle,
+      description: newDesc
+    });
+
+    refetch(); // 🔁 mise à jour de la liste
+  };
+
+  const handleDelete = async (boardId) => {
+    const confirmDelete = confirm("Supprimer ce board ?");
+    if (!confirmDelete) return;
+
+    await deleteBoard(boardId);
+    refetch(); // 🔁 mise à jour de la liste
+  };
 
   return (
     <div
@@ -23,49 +42,29 @@ export default function BoardsList({ visible }) {
         borderRadius: 8,
         padding: 16,
         zIndex: 1000,
-        boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
       }}
     >
       <h3 style={{ marginTop: 0 }}>📋 Mes boards</h3>
+
       {isLoading && <p>Chargement...</p>}
       {error && <p style={{ color: "red" }}>Erreur : {error.message}</p>}
+
       {boards.map((board) => (
         <div
           key={board.id}
           style={{
             borderBottom: "1px solid #eee",
             marginBottom: 12,
-            paddingBottom: 8,
+            paddingBottom: 8
           }}
         >
-          <p>
-            <strong>{board.title}</strong>
-          </p>
+          <p><strong>{board.title}</strong></p>
           <p>{board.description}</p>
 
           <div style={{ display: "flex", gap: 8 }}>
             <button
-              onClick={() => {
-                const newTitle = prompt("Nouveau titre :", board.title);
-                const newDesc = prompt(
-                  "Nouvelle description :",
-                  board.description
-                );
-
-                // Vérifie que quelque chose a changé
-                if (
-                  newTitle === null ||
-                  newDesc === null ||
-                  (newTitle === board.title && newDesc === board.description)
-                ) {
-                  return;
-                }
-
-                updateBoard(board.id, {
-                  title: newTitle,
-                  description: newDesc,
-                });
-              }}
+              onClick={() => handleUpdate(board)}
               style={{
                 padding: "4px 8px",
                 fontSize: 12,
@@ -73,18 +72,13 @@ export default function BoardsList({ visible }) {
                 color: "#fff",
                 border: "none",
                 borderRadius: 4,
-                cursor: "pointer",
+                cursor: "pointer"
               }}
             >
               ✏️ Modifier
             </button>
             <button
-              onClick={() => {
-                const confirmDelete = confirm("Supprimer ce board ?");
-                if (confirmDelete) {
-                  deleteBoard(board.id);
-                }
-              }}
+              onClick={() => handleDelete(board.id)}
               style={{
                 padding: "4px 8px",
                 fontSize: 12,
@@ -92,7 +86,7 @@ export default function BoardsList({ visible }) {
                 color: "#fff",
                 border: "none",
                 borderRadius: 4,
-                cursor: "pointer",
+                cursor: "pointer"
               }}
             >
               🗑 Supprimer
