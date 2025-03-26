@@ -1,26 +1,25 @@
 import { useState, useEffect } from "react";
 
-export const useGetBoardById = (boardId) => {
-    const [board, setBoard] = useState(null);
+export const useGetAllBoards = () => {
+    const [board, setBoard] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
   
     useEffect(() => {
-      if (!boardId) return;
-      const fetchBoard = async () => {
+      const fetchBoards = async () => {
         try {
-          const res = await fetch(`http://localhost:3000/api/boards/${boardId}`);
+          const res = await fetch(`http://localhost:3000/api/boards/`);
           const data = await res.json();
           setBoard(data);
           setIsLoading(false);
-          console.log("board by id",data);
+          console.log("All boards", data);
         } catch (err) {
           setError(err);
           setIsLoading(false);
         }
       };
-      fetchBoard();
-    }, [boardId]);
+      fetchBoards();
+    }, []);
   
     return { board, isLoading, error };
   };
