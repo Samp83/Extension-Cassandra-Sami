@@ -16,6 +16,7 @@ export const useUpdateBoard = () => {
         const data = await res.json();
         setUpdatedBoard(data);
         setIsUpdating(false);
+        console.log(`updated board ${boardId}`,data);
       } catch (err) {
         setError(err);
         setIsUpdating(false);

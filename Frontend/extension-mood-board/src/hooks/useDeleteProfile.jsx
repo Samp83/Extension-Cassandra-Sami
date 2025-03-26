@@ -1,24 +1,24 @@
 import { useState, useCallback } from "react";
 
-export const useDeleteBoard = () => {
+export const useDeleteProfile = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState(null);
     const [isDeleted, setIsDeleted] = useState(false);
   
-    const deleteBoard = useCallback(async (boardId) => {
+    const deleteProfile = useCallback(async (profileId) => {
       setIsDeleting(true);
       try {
-        await fetch(`http://localhost:3000/api/boards/${boardId}`, {
+        await fetch(`http://localhost:3000/api/profiles/${profileId}`, {
           method: "DELETE",
         });
         setIsDeleted(true);
         setIsDeleting(false);
-        console.log(`deleted board ${boardId}`);
+        console.log(`deleted profile ${profileId}`);
       } catch (err) {
         setError(err);
         setIsDeleting(false);
       }
     }, []);
   
-    return { deleteBoard, isDeleting, isDeleted, error };
+    return { deleteProfile, isDeleting, isDeleted, error };
   };
