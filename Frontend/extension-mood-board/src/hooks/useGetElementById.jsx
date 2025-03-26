@@ -7,7 +7,7 @@ export const useGetElementById = (elementId) => {
   
     useEffect(() => {
       if (!elementId) return;
-      const fetchlement = async () => {
+      const fetchelement = async () => {
         try {
           const res = await fetch(`http://localhost:3000/api/elements/${elementId}`);
           const data = await res.json();
@@ -19,7 +19,7 @@ export const useGetElementById = (elementId) => {
           setIsLoading(false);
         }
       };
-      fetchlement();
+      fetchelement();
     }, [elementId]);
   
     return { element, isLoading, error };

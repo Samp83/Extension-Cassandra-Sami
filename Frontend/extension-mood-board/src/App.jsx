@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useCreateBoard } from "./hooks/useCreateBoard";
+import { useCreateElement } from "./hooks/useCreateElement";
 import { useGetAllBoards } from "./hooks/useGetAllBoards";
-import BoardsList from "./BoardsList"; // 💡 ton composant de liste
+import { useGetElementsByBoard } from "./hooks/useGetElementsByBoard";
+import BoardsList from "./BoardsList";
 
 function App() {
   const [items, setItems] = useState([]);
   const [showBoards, setShowBoards] = useState(false);
   const containerRef = useRef(null);
+
   const {
     boards,
     isLoading,
@@ -14,7 +17,14 @@ function App() {
     refetch,
   } = useGetAllBoards();
 
-  const { createBoard, createdBoard, isCreating, error } = useCreateBoard();
+  const {
+    createBoard,
+    createdBoard,
+    isCreating,
+    error: createBoardError,
+  } = useCreateBoard();
+
+  const { createElement } = useCreateElement();
 
   const deleteItem = (id) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
@@ -128,6 +138,32 @@ function App() {
     }
   };
 
+  const loadBoardElements = async (boardId) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/boards/${boardId}/elements`);
+      const data = await res.json();
+      console.log("Chargement du board :", boardId, data);
+  
+      // Transformer les éléments en format local `items`
+      const loadedItems = data.map((el) => ({
+        id: el.id,
+        x: el.posX,
+        y: el.posY,
+        width: el.width,
+        height: el.height,
+        type: el.type,
+        content: el.content,
+      }));
+  
+      setItems(loadedItems);
+      setShowBoards(false); // on peut fermer la liste
+    } catch (err) {
+      console.error("Erreur chargement éléments du board", err);
+      alert("Erreur lors du chargement des éléments.");
+    }
+  };
+  
+
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -167,7 +203,7 @@ function App() {
       onDragOver={handleDragOver}
       style={{
         position: "relative",
-        width: "100%",
+        width: "300%",
         height: "100vh",
         background: "#f9f9f9",
         overflow: "hidden",
@@ -267,7 +303,7 @@ function App() {
         </div>
       ))}
 
-      {/* SAUVEGARDE DU BOARD */}
+      {/* SAUVEGARDE DU BOARD + ÉLÉMENTS */}
       <div style={{ position: "fixed", bottom: 10, left: 10 }}>
         <button
           onClick={async () => {
@@ -275,8 +311,25 @@ function App() {
             const description = prompt("Description du board :");
             if (!title) return;
 
-            await createBoard(title, description);
-            refetch(); // ✅ rafraîchit la liste après création
+            const newBoard = await createBoard(title, description);
+            refetch();
+
+            if (!newBoard || !newBoard.id) return;
+
+            for (const item of items) {
+              await createElement(
+                item.type,
+                item.content,
+                item.x,
+                item.y,
+                item.width,
+                item.height,
+                newBoard.id
+              );
+            }
+
+            alert("Board et éléments enregistrés !");
+            setItems([]);
           }}
           disabled={isCreating}
           style={{
@@ -292,13 +345,16 @@ function App() {
         >
           💾 Sauvegarder le board
         </button>
+
         {createdBoard && (
           <p style={{ marginTop: 8, color: "#4caf50" }}>
-            Board créé avec succès : {createdBoard.title}
+            Board créé : {createdBoard.title}
           </p>
         )}
-        {error && (
-          <p style={{ marginTop: 8, color: "red" }}>Erreur : {error.message}</p>
+        {createBoardError && (
+          <p style={{ marginTop: 8, color: "red" }}>
+            Erreur : {createBoardError.message}
+          </p>
         )}
       </div>
 
@@ -307,8 +363,9 @@ function App() {
         visible={showBoards}
         boards={boards}
         isLoading={isLoading}
-        getAllBoardsError={error}
+        getAllBoardsError={getAllBoardsError}
         refetch={refetch}
+        onLoadBoard={loadBoardElements}
       />
     </div>
   );

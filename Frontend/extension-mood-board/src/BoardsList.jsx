@@ -1,7 +1,7 @@
 import { useUpdateBoard } from "./hooks/useUpdateBoard";
 import { useDeleteBoard } from "./hooks/useDeleteBoard";
 
-export default function BoardsList({ visible, refetch, boards, isLoading, error }) {
+export default function BoardsList({ visible, refetch, boards, isLoading, error, onLoadBoard }) {
   const { updateBoard } = useUpdateBoard();
   const { deleteBoard } = useDeleteBoard();
 
@@ -42,7 +42,7 @@ export default function BoardsList({ visible, refetch, boards, isLoading, error 
         borderRadius: 8,
         padding: 16,
         zIndex: 1000,
-        boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
+        boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
       }}
     >
       <h3 style={{ marginTop: 0 }}>📋 Mes boards</h3>
@@ -56,10 +56,12 @@ export default function BoardsList({ visible, refetch, boards, isLoading, error 
           style={{
             borderBottom: "1px solid #eee",
             marginBottom: 12,
-            paddingBottom: 8
+            paddingBottom: 8,
           }}
         >
-          <p><strong>{board.title}</strong></p>
+          <p>
+            <strong>{board.title}</strong>
+          </p>
           <p>{board.description}</p>
 
           <div style={{ display: "flex", gap: 8 }}>
@@ -72,7 +74,7 @@ export default function BoardsList({ visible, refetch, boards, isLoading, error 
                 color: "#fff",
                 border: "none",
                 borderRadius: 4,
-                cursor: "pointer"
+                cursor: "pointer",
               }}
             >
               ✏️ Modifier
@@ -86,10 +88,24 @@ export default function BoardsList({ visible, refetch, boards, isLoading, error 
                 color: "#fff",
                 border: "none",
                 borderRadius: 4,
-                cursor: "pointer"
+                cursor: "pointer",
               }}
             >
               🗑 Supprimer
+            </button>
+            <button
+              onClick={() => onLoadBoard(board.id)}
+              style={{
+                padding: "4px 8px",
+                fontSize: 12,
+                background: "#4caf50",
+                color: "#fff",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+              }}
+            >
+              📥 Charger
             </button>
           </div>
         </div>

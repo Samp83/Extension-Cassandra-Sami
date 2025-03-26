@@ -5,7 +5,7 @@ export const useCreateBoard = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
 
-  const createBoard = useCallback(async (title,  description) => {
+  const createBoard = useCallback(async (title, description) => {
     setIsCreating(true);
     try {
       const res = await fetch("http://localhost:3000/api/boards", {
@@ -16,9 +16,11 @@ export const useCreateBoard = () => {
       const data = await res.json();
       setCreatedBoard(data);
       setIsCreating(false);
+      return data; // 👈 retourne le board créé
     } catch (err) {
       setError(err);
       setIsCreating(false);
+      return null;
     }
   }, []);
 
