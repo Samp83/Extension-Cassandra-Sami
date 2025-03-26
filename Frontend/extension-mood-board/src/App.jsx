@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useCreateBoard } from "./hooks/useCreateBoard";
+import BoardsList from "./BoardsList"; // 💡 ton composant de liste
 
 function App() {
   const [items, setItems] = useState([]);
+  const [showBoards, setShowBoards] = useState(false);
   const containerRef = useRef(null);
 
   const { createBoard, createdBoard, isCreating, error } = useCreateBoard();
@@ -158,17 +160,44 @@ function App() {
       onDragOver={handleDragOver}
       style={{
         position: "relative",
-        width: "1000%",
+        width: "100%",
         height: "100vh",
-        border: "2px dashed #aaa",
-        overflow: "hidden",
-        background: "#f9f9f9"
+        background: "#f9f9f9",
+        overflow: "hidden"
       }}
     >
-      <p style={{ padding: 10, fontWeight: "bold" }}>
-        Glisse ici ton contenu 🎯
-      </p>
+      {/* HEADER */}
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "#333",
+          color: "#fff",
+          padding: "10px 16px",
+          position: "sticky",
+          top: 0,
+          zIndex: 1001
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: "16px" }}>🧠 Moodboard Extension</h2>
+        <button
+          onClick={() => setShowBoards(!showBoards)}
+          style={{
+            background: "#555",
+            color: "#fff",
+            padding: "6px 10px",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: 12
+          }}
+        >
+          📋 Mes boards
+        </button>
+      </header>
 
+      {/* ITEMS DROPPÉS */}
       {items.map((item) => (
         <div
           key={item.id}
@@ -231,7 +260,7 @@ function App() {
         </div>
       ))}
 
-      {/* Bouton sauvegarde board */}
+      {/* SAUVEGARDE DU BOARD */}
       <div style={{ position: "fixed", bottom: 10, left: 10 }}>
         <button
           onClick={() => {
@@ -266,6 +295,9 @@ function App() {
           </p>
         )}
       </div>
+
+      {/* LISTE DES BOARDS */}
+      <BoardsList visible={showBoards} />
     </div>
   );
 }
