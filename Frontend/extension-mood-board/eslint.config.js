@@ -29,5 +29,11 @@ export default [
         { allowConstantExport: true },
       ],
     },
+    "env": {
+      "browser": true
+    },
+    "globals": {
+      "chrome": "readonly"
+    }
   },
 ]
