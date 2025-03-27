@@ -4,6 +4,8 @@ import { useCreateElement } from "./hooks/useCreateElement";
 import { useGetAllBoards } from "./hooks/useGetAllBoards";
 import { useCreateProfileBoardLink } from "./hooks/useCreateProfileBoardLink";
 import { useGetAllProfiles } from "./hooks/useGetAllProfiles";
+import { useUpdateBoard } from "./hooks/useUpdateBoard";
+import { useDeleteElement } from "./hooks/useDeleteElement";
 import BoardsList from "./BoardsList";
 import ProfilesList from "./ProfilesList";
 
@@ -12,10 +14,23 @@ function App() {
   const [showBoards, setShowBoards] = useState(false);
   const [showProfiles, setShowProfiles] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [currentBoardId, setCurrentBoardId] = useState(null);
+  const { updateBoard, isUpdating } = useUpdateBoard();
+  const { deleteElement } = useDeleteElement();
   const containerRef = useRef(null);
 
-  const { boards, isLoading, error: getAllBoardsError, refetch } = useGetAllBoards();
-  const { createBoard, createdBoard, isCreating, error: createBoardError } = useCreateBoard();
+  const {
+    boards,
+    isLoading,
+    error: getAllBoardsError,
+    refetch,
+  } = useGetAllBoards();
+  const {
+    createBoard,
+    createdBoard,
+    isCreating,
+    error: createBoardError,
+  } = useCreateBoard();
   const { createElement } = useCreateElement();
   const { profile: profiles } = useGetAllProfiles();
   const { linkBoardToProfile } = useCreateProfileBoardLink();
@@ -24,6 +39,15 @@ function App() {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const clearBoardElements = async (boardId) => {
+    const res = await fetch(
+      `http://localhost:3000/api/boards/${boardId}/elements`
+    );
+    const data = await res.json();
+    for (const el of data) {
+      await deleteElement(el.id);
+    }
+  };
   const handleDrop = async (e) => {
     e.preventDefault();
     const data = e.dataTransfer;
@@ -49,7 +73,13 @@ function App() {
         img.onload = () => {
           setItems((prev) => [
             ...prev,
-            { ...baseItem, type: "image", content: reader.result, width: img.width, height: img.height },
+            {
+              ...baseItem,
+              type: "image",
+              content: reader.result,
+              width: img.width,
+              height: img.height,
+            },
           ]);
         };
         img.src = reader.result;
@@ -74,7 +104,13 @@ function App() {
 
       setItems((prev) => [
         ...prev,
-        { ...baseItem, type: "text", content: text, width: measuredWidth + 1, height: measuredHeight + 1 },
+        {
+          ...baseItem,
+          type: "text",
+          content: text,
+          width: measuredWidth + 1,
+          height: measuredHeight + 1,
+        },
       ]);
       return;
     }
@@ -86,7 +122,13 @@ function App() {
       img.onload = () => {
         setItems((prev) => [
           ...prev,
-          { ...baseItem, type: "image", content: url, width: img.width, height: img.height },
+          {
+            ...baseItem,
+            type: "image",
+            content: url,
+            width: img.width,
+            height: img.height,
+          },
         ]);
       };
       img.onerror = () => {
@@ -101,7 +143,9 @@ function App() {
 
   const loadBoardElements = async (boardId) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/boards/${boardId}/elements`);
+      const res = await fetch(
+        `http://localhost:3000/api/boards/${boardId}/elements`
+      );
       const data = await res.json();
       const loadedItems = data.map((el) => ({
         id: el.id,
@@ -112,6 +156,7 @@ function App() {
         type: el.type,
         content: el.content,
       }));
+      setCurrentBoardId(boardId);
       setItems(loadedItems);
       setShowBoards(false);
     } catch (err) {
@@ -134,7 +179,9 @@ function App() {
       const dy = moveEvent.clientY - startY;
 
       setItems((prev) =>
-        prev.map((el) => (el.id === id ? { ...el, x: item.x + dx, y: item.y + dy } : el))
+        prev.map((el) =>
+          el.id === id ? { ...el, x: item.x + dx, y: item.y + dy } : el
+        )
       );
     };
 
@@ -333,7 +380,6 @@ function App() {
         >
           💾 Sauvegarder le board
         </button>
-
         {createdBoard && (
           <p style={{ marginTop: 8, color: "#4caf50" }}>
             Board créé : {createdBoard.title}
@@ -343,6 +389,51 @@ function App() {
           <p style={{ marginTop: 8, color: "red" }}>
             Erreur : {createBoardError.message}
           </p>
+        )}
+      </div>
+      <div style={{ position: "fixed", bottom: 10, right: 10 }}>
+        {currentBoardId && (
+          <button
+            onClick={async () => {
+              const confirmEdit = confirm(
+                "Cela va écraser les éléments existants du board. Continuer ?"
+              );
+              if (!confirmEdit) return;
+
+              // 🔁 Supprime tous les anciens éléments
+              await clearBoardElements(currentBoardId);
+
+              // 💾 Ajoute les nouveaux
+              for (const item of items) {
+                await createElement(
+                  item.type,
+                  item.content,
+                  item.x,
+                  item.y,
+                  item.width,
+                  item.height,
+                  currentBoardId
+                );
+              }
+
+              alert("Modifications enregistrées !");
+            }}
+            disabled={isUpdating}
+            style={{
+              background: "#2196f3",
+              color: "white",
+              padding: "10px 16px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              marginTop: 8,
+              marginLeft: 8,
+              opacity: isUpdating ? 0.6 : 1,
+            }}
+          >
+            📝 Enregistrer les changements
+          </button>
         )}
       </div>
 
