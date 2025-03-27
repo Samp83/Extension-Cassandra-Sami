@@ -5,13 +5,13 @@ export const useCreateProfile = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
 
-  const createProfile = useCallback(async (title,  description) => {
+  const createProfile = useCallback(async (nom,  couleur) => {
     setIsCreating(true);
     try {
       const res = await fetch("http://localhost:3000/api/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify({ nom, couleur }),
       });
       const data = await res.json();
       setcreatedProfile(data);
