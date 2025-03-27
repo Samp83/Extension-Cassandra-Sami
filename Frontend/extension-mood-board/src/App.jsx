@@ -142,9 +142,7 @@ function App() {
     try {
       const res = await fetch(`http://localhost:3000/api/boards/${boardId}/elements`);
       const data = await res.json();
-      console.log("Chargement du board :", boardId, data);
   
-      // Transformer les éléments en format local `items`
       const loadedItems = data.map((el) => ({
         id: el.id,
         x: el.posX,
@@ -156,13 +154,12 @@ function App() {
       }));
   
       setItems(loadedItems);
-      setShowBoards(false); // on peut fermer la liste
+      setShowBoards(false);
     } catch (err) {
       console.error("Erreur chargement éléments du board", err);
       alert("Erreur lors du chargement des éléments.");
     }
   };
-  
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -209,7 +206,6 @@ function App() {
         overflow: "hidden",
       }}
     >
-      {/* HEADER */}
       <header
         style={{
           display: "flex",
@@ -240,7 +236,6 @@ function App() {
         </button>
       </header>
 
-      {/* ITEMS DROPPÉS */}
       {items.map((item) => (
         <div
           key={item.id}
@@ -303,7 +298,6 @@ function App() {
         </div>
       ))}
 
-      {/* SAUVEGARDE DU BOARD + ÉLÉMENTS */}
       <div style={{ position: "fixed", bottom: 10, left: 10 }}>
         <button
           onClick={async () => {
@@ -358,7 +352,6 @@ function App() {
         )}
       </div>
 
-      {/* LISTE DES BOARDS */}
       <BoardsList
         visible={showBoards}
         boards={boards}

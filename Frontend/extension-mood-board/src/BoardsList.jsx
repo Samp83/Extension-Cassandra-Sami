@@ -17,7 +17,7 @@ export default function BoardsList({ visible, refetch, boards, isLoading, error,
       description: newDesc
     });
 
-    refetch(); // 🔁 mise à jour de la liste
+    refetch(); 
   };
 
   const handleDelete = async (boardId) => {

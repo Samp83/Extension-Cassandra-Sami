@@ -16,7 +16,7 @@ export const useCreateBoard = () => {
       const data = await res.json();
       setCreatedBoard(data);
       setIsCreating(false);
-      return data; // 👈 retourne le board créé
+      return data;
     } catch (err) {
       setError(err);
       setIsCreating(false);
