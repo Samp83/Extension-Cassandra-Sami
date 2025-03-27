@@ -1,4 +1,6 @@
-/* ========== RESET ========== */
+/* =========================
+   GLOBAL RESET & BASE
+========================= */
 *,
 *::before,
 *::after {
@@ -7,15 +9,21 @@
   padding: 0;
 }
 
-/* ========== BODY ========== */
+:root {
+  font-size: 16px; /* 1rem = 16px */
+}
+
 body {
   font-family: 'Arial', sans-serif;
   background-color: #f9f9f9;
   color: #333;
   overflow: hidden;
+  line-height: 1.5;
 }
 
-/* ========== MOODBOARD ========== */
+/* =========================
+   MOODBOARD LAYOUT
+========================= */
 .moodboard {
   position: relative;
   width: 300%;
@@ -24,7 +32,9 @@ body {
   overflow: hidden;
 }
 
-/* ========== HEADER ========== */
+/* =========================
+   HEADER
+========================= */
 .moodboard__header {
   display: flex;
   justify-content: space-between;
@@ -38,71 +48,68 @@ body {
 }
 
 .moodboard__title {
-  font-size: 1rem;
+  font-size: 1rem; /* 16px */
+  margin: 0;
 }
 
-.moodboard__button {
+.moodboard__btn--topbar {
   background-color: #555;
   color: #fff;
-  padding: 0.375rem 0.625rem;
+  padding: 0.375rem 0.625rem; /* 6px 10px */
+  font-size: 0.75rem; /* 12px */
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 0.375rem; /* 6px */
   cursor: pointer;
-  font-size: 0.75rem;
 }
 
-/* ========== ITEM BLOCK ========== */
+/* =========================
+   MOODBOARD ITEM
+========================= */
 .moodboard__item {
   position: absolute;
   cursor: move;
   background-color: #fff;
   border: 1px solid #ccc;
-  box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  min-width: 12rem;     /* ~192px */
-  min-height: 6rem;     /* ~96px */
-  border-radius: 0.5rem;
+  box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.1); /* 2px 2px 6px */
+  padding: 0.5rem; /* 8px */
   overflow: hidden;
+  border-radius: 0.5rem; /* 8px */
 }
 
-/* ========== DELETE BUTTON ========== */
-.moodboard__item-delete {
+.moodboard__item--text p {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.4;
+}
+
+.moodboard__item--url a {
+  font-size: 0.8125rem; /* 13px */
+  color: #007acc;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+/* =========================
+   DELETE BUTTON (ITEM)
+========================= */
+.moodboard__delete-btn {
   position: absolute;
-  top: -0.75rem;
-  right: -0.75rem;
+  top: 1rem;
+  right: 1rem;
   background-color: #f44336;
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1rem;
+  height: 1rem;
+  font-size: 0.625rem; /* 10px */
+  line-height: 1rem;
+  text-align: center;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.2);
-  transition: background 0.2s ease;
 }
 
-.moodboard__item-delete:hover {
-  background-color: #d32f2f;
-}
-
-/* ========== ITEM CONTENTS ========== */
-.moodboard__item p {
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-
-.moodboard__item a {
-  color: #007acc;
-  text-decoration: underline;
-  word-break: break-word;
-  font-size: 0.8125rem;
-}
-
+/* =========================
+   IMAGE
+========================= */
 .moodboard__item img {
   max-width: 100%;
   max-height: 100%;
@@ -110,15 +117,17 @@ body {
   object-fit: contain;
 }
 
-/* ========== SAVE BUTTON ========== */
+/* =========================
+   SAVE BUTTON
+========================= */
 .moodboard__save-btn {
   background-color: #4caf50;
-  color: white;
+  color: #fff;
   padding: 0.625rem 1rem;
   border: none;
   border-radius: 0.5rem;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
   transition: opacity 0.3s ease;
 }
 
@@ -127,14 +136,18 @@ body {
   cursor: not-allowed;
 }
 
-/* ========== FIXED ACTIONS AREA ========== */
+/* =========================
+   FIXED BOTTOM ACTIONS
+========================= */
 .moodboard__actions {
   position: fixed;
-  bottom: 1rem;
-  left: 1rem;
+  bottom: 0.625rem; /* 10px */
+  left: 0.625rem;
 }
 
-/* ========== STATUS MESSAGES ========== */
+/* =========================
+   STATUS MESSAGES
+========================= */
 .moodboard__message--success {
   margin-top: 0.5rem;
   color: #4caf50;
