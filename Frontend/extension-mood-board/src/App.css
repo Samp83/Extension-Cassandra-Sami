@@ -57,16 +57,21 @@ body {
   background: #fff;
   border: 1px solid #ccc;
   box-shadow: 0.125rem 0.125rem 0.375rem  rgba(0, 0, 0, 0.1);
-  padding: 0.5rem;
+  padding: 0.5rem 0.5rem 1rem 1rem;
+  padding-block-end: 0.5rem;
   overflow: hidden;
   border-radius: 0.5rem;
+  width: fit-content;
+  height: fit-content;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* Delete button */
 .moodboard-item button {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.15rem;
+  right: 0.15rem;
   background: #f44336;
   color: #fff;
   border: none;
@@ -127,6 +132,7 @@ body {
 .moodboard-item p {
   font-size: 14px;
   line-height: 1.4;
+  padding: 5% 5%;
 }
 
 /* URL content */
