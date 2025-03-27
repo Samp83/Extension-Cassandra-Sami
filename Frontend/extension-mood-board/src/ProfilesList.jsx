@@ -47,42 +47,16 @@ export default function ProfilesList({ onSelectProfile }) {
   };
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 60,
-        right: 10,
-        width: "360px",
-        bottom: 10,
-        overflowY: "auto",
-        background: "#fff",
-        border: "1px solid #ccc",
-        borderRadius: 8,
-        padding: 16,
-        zIndex: 1000,
-        boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>👤 Profils</h3>
+    <div>
+      <h3>👤 Profils</h3>
 
       <button
-        onClick={handleCreate}
-        style={{
-          background: "#4caf50",
-          color: "#fff",
-          border: "none",
-          padding: "6px 12px",
-          borderRadius: 6,
-          cursor: "pointer",
-          marginBottom: 12,
-          fontSize: 13,
-        }}
-      >
+        onClick={handleCreate}>
         ➕ Nouveau profil
       </button>
 
       {isLoading && <p>Chargement...</p>}
-      {error && <p style={{ color: "red" }}>Erreur : {error.message}</p>}
+      {error && <p>Erreur : {error.message}</p>}
 
       {profiles.map((profile) => {
         // boards déjà liés à ce profil
@@ -91,53 +65,34 @@ export default function ProfilesList({ onSelectProfile }) {
 
         return (
           <div
-            key={profile.id}
-            style={{
-              borderBottom: "1px solid #eee",
-              marginBottom: 16,
-              paddingBottom: 12,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            key={profile.id}>
+            <div>
               <strong>{profile.nom}</strong>
               {profile.couleur && (
-                <span
-                  style={{
-                    background: profile.couleur,
-                    color: "#fff",
-                    padding: "2px 8px",
-                    borderRadius: "12px",
-                    fontSize: "11px",
-                  }}
-                >
+                <span>
                   {profile.couleur}
                 </span>
               )}
             </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+            <div>
               <button
                 onClick={() => onSelectProfile(profile)}
-                style={btn("blue")}
               >
                 ✅ Sélectionner
               </button>
               <button
-                onClick={() => handleUpdate(profile)}
-                style={btn("yellow")}
-              >
+                onClick={() => handleUpdate(profile)}>
                 ✏️ Modifier
               </button>
               <button
-                onClick={() => handleDelete(profile.id)}
-                style={btn("red")}
-              >
+                onClick={() => handleDelete(profile.id)}>
                 🗑 Supprimer
               </button>
             </div>
 
             {/* Selecteur de board à lier */}
-            <div style={{ marginTop: 8 }}>
+            <div>
               <select
                 value={selectedBoardIdByProfile[profile.id] || ""}
                 onChange={(e) =>
@@ -146,7 +101,6 @@ export default function ProfilesList({ onSelectProfile }) {
                     [profile.id]: e.target.value,
                   }))
                 }
-                style={{ width: "100%", padding: 6, borderRadius: 4 }}
               >
                 <option value="">🔗 Choisir un board à associer...</option>
                 {unlinkedBoards.map((b) => (
@@ -157,7 +111,6 @@ export default function ProfilesList({ onSelectProfile }) {
               </select>
               <button
                 onClick={() => handleLinkBoard(profile.id)}
-                style={{ ...btn("gray"), marginTop: 6 }}
               >
                 Associer
               </button>

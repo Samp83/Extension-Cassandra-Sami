@@ -49,23 +49,8 @@ export default function BoardsList({
   const nonClassedBoards = boards.filter((b) => !linkedBoardIds.has(b.id));
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 60,
-        left: 10,
-        right: 10,
-        bottom: 10,
-        overflowY: "auto",
-        background: "#fff",
-        border: "1px solid #ccc",
-        borderRadius: 8,
-        padding: 16,
-        zIndex: 1000,
-        boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>📋 Mes boards par profil</h3>
+    <div>
+      <h3>📋 Mes boards par profil</h3>
 
       {loadingProfiles && <p>Chargement des profils...</p>}
       {!loadingProfiles &&
@@ -82,8 +67,8 @@ export default function BoardsList({
           ))}
 
       {nonClassedBoards.length > 0 && (
-        <div style={{ marginTop: 32 }}>
-          <h4 style={{ borderBottom: "1px solid #ddd", paddingBottom: 4 }}>
+        <div>
+          <h4>
             🗂 Non classés
           </h4>
 
@@ -106,11 +91,11 @@ function ProfileBoardsGroup({ profile, onLoadBoard, onUpdate, onDelete }) {
   const { boards, isLoading, error } = useGetBoardsByProfile(profile.id);
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      <h4 style={{ borderBottom: "1px solid #ddd", paddingBottom: 4 }}>{profile.nom}</h4>
+    <div >
+      <h4>{profile.nom}</h4>
 
-      {isLoading && <p style={{ fontSize: 13 }}>Chargement des boards...</p>}
-      {error && <p style={{ color: "red" }}>Erreur : {error.message}</p>}
+      {isLoading && <p>Chargement des boards...</p>}
+      {error && <p>Erreur : {error.message}</p>}
 
       {boards.map((board) => (
         <BoardItem
@@ -127,28 +112,20 @@ function ProfileBoardsGroup({ profile, onLoadBoard, onUpdate, onDelete }) {
 
 function BoardItem({ board, onLoadBoard, onUpdate, onDelete }) {
   return (
-    <div
-      style={{
-        border: "1px solid #eee",
-        borderRadius: 6,
-        padding: 8,
-        marginBottom: 10,
-        background: "#fafafa",
-      }}
-    >
-      <p style={{ margin: 0 }}>
+    <div>
+      <p>
         <strong>{board.title}</strong>
       </p>
-      <p style={{ margin: "4px 0", fontSize: 13 }}>{board.description}</p>
+      <p>{board.description}</p>
 
-      <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={() => onLoadBoard(board.id)} style={btn("green")}>
+      <div>
+        <button onClick={() => onLoadBoard(board.id)}>
           📥 Charger
         </button>
-        <button onClick={() => onUpdate(board)} style={btn("blue")}>
+        <button onClick={() => onUpdate(board)}>
           ✏️ Modifier
         </button>
-        <button onClick={() => onDelete(board.id)} style={btn("red")}>
+        <button onClick={() => onDelete(board.id)}>
           🗑 Supprimer
         </button>
       </div>

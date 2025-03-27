@@ -8,6 +8,7 @@ import { useUpdateBoard } from "./hooks/useUpdateBoard";
 import { useDeleteElement } from "./hooks/useDeleteElement";
 import BoardsList from "./BoardsList";
 import ProfilesList from "./ProfilesList";
+import './App.css'
 
 function App() {
   const [items, setItems] = useState([]);
@@ -199,56 +200,18 @@ function App() {
       ref={containerRef}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      style={{
-        position: "relative",
-        width: "300%",
-        height: "100vh",
-        background: "#f9f9f9",
-        overflow: "hidden",
-      }}
     >
       {/* HEADER */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          background: "#333",
-          color: "#fff",
-          padding: "10px 16px",
-          position: "sticky",
-          top: 0,
-          zIndex: 1001,
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "16px" }}>🧠 Moodboard Extension</h2>
+      <header>
+        <h2>🧠 Moodboard Extension</h2>
         <div>
           <button
             onClick={() => setShowBoards(!showBoards)}
-            style={{
-              background: "#555",
-              color: "#fff",
-              padding: "6px 10px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: 12,
-              marginRight: 8,
-            }}
           >
             📋 Mes boards
           </button>
           <button
             onClick={() => setShowProfiles(!showProfiles)}
-            style={{
-              background: "#888",
-              color: "#fff",
-              padding: "6px 10px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: 12,
-            }}
           >
             👤 Profils
           </button>
@@ -260,38 +223,9 @@ function App() {
         <div
           key={item.id}
           onMouseDown={(e) => startDrag(e, item.id)}
-          style={{
-            position: "absolute",
-            top: item.y,
-            left: item.x,
-            width: item.width,
-            height: item.height,
-            cursor: "move",
-            background: "#fff",
-            border: "1px solid #ccc",
-            boxShadow: "2px 2px 6px rgba(0,0,0,0.1)",
-            padding: 8,
-            overflow: "hidden",
-            borderRadius: 8,
-          }}
         >
           <button
             onClick={() => deleteItem(item.id)}
-            style={{
-              position: "absolute",
-              top: 2,
-              right: 2,
-              background: "#f44336",
-              color: "#fff",
-              border: "none",
-              borderRadius: "50%",
-              width: 16,
-              height: 16,
-              cursor: "pointer",
-              fontSize: "10px",
-              lineHeight: "16px",
-              textAlign: "center",
-            }}
             title="Supprimer"
           >
             ×
@@ -307,19 +241,13 @@ function App() {
             <img
               src={item.content}
               alt="drop"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                display: "block",
-                objectFit: "contain",
-              }}
             />
           )}
         </div>
       ))}
 
       {/* SAUVEGARDE */}
-      <div style={{ position: "fixed", bottom: 10, left: 10 }}>
+      <div>
         <button
           onClick={async () => {
             const title = prompt("Titre du board :");
@@ -366,32 +294,21 @@ function App() {
             alert("Board, éléments et profil enregistrés !");
             setItems([]);
           }}
-          disabled={isCreating}
-          style={{
-            background: "#4caf50",
-            color: "white",
-            padding: "10px 16px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            opacity: isCreating ? 0.6 : 1,
-          }}
-        >
+          disabled={isCreating}>
           💾 Sauvegarder le board
         </button>
         {createdBoard && (
-          <p style={{ marginTop: 8, color: "#4caf50" }}>
+          <p>
             Board créé : {createdBoard.title}
           </p>
         )}
         {createBoardError && (
-          <p style={{ marginTop: 8, color: "red" }}>
+          <p>
             Erreur : {createBoardError.message}
           </p>
         )}
       </div>
-      <div style={{ position: "fixed", bottom: 10, right: 10 }}>
+      <div>
         {currentBoardId && (
           <button
             onClick={async () => {
@@ -418,20 +335,7 @@ function App() {
 
               alert("Modifications enregistrées !");
             }}
-            disabled={isUpdating}
-            style={{
-              background: "#2196f3",
-              color: "white",
-              padding: "10px 16px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              marginTop: 8,
-              marginLeft: 8,
-              opacity: isUpdating ? 0.6 : 1,
-            }}
-          >
+            disabled={isUpdating}>
             📝 Enregistrer les changements
           </button>
         )}
