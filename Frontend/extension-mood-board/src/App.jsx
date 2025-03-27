@@ -279,7 +279,7 @@ function App() {
             }}
             title="Supprimer"
           >
-            ×
+            
           </button>
 
           {item.type === "text" && <p>{item.content}</p>}
