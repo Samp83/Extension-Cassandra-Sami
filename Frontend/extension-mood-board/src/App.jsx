@@ -287,8 +287,8 @@ function App() {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
-                    title: "Non classés",
-                    description: "Boards sans catégorie",
+                    nom: "Non classés",
+                    couleur: "Boards sans catégorie",
                   }),
                 });
                 fallback = await res.json();
@@ -304,6 +304,7 @@ function App() {
             await linkBoardToProfile(profileId, newBoard.id);
 
             for (const item of items) {
+              console.log("Enregistrement item :", item);
               await createElement(
                 item.type,
                 item.content,

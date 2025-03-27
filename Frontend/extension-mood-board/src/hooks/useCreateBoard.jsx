@@ -4,7 +4,6 @@ export const useCreateBoard = () => {
   const [createdBoard, setCreatedBoard] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
-
   const createBoard = useCallback(async (title, description) => {
     setIsCreating(true);
     try {
@@ -16,13 +15,13 @@ export const useCreateBoard = () => {
       const data = await res.json();
       setCreatedBoard(data);
       setIsCreating(false);
-      return data; // 👈 retourne le board créé
+      return data; // ✅ retourne le board directement ici
     } catch (err) {
       setError(err);
       setIsCreating(false);
-      return null;
     }
   }, []);
+  
 
   return { createBoard, createdBoard, isCreating, error };
 };
