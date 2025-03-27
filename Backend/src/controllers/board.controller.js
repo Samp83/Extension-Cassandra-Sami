@@ -36,9 +36,18 @@ const updateBoardHandler = async (req, res) => {
 const deleteBoardHandler = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Supprimer les relations dans ProfileBoards avant de supprimer le board
+    await prisma.profileBoards.deleteMany({
+      where: { boardId: parseInt(id) },
+    });
+
+    // Ensuite, supprimer le board
     await service.deleteExistingBoard(id);
-    res.status(204).send();
+
+    res.status(204).send(); // Renvoie un code 204 (pas de contenu) après suppression
   } catch (err) {
+    console.error("Erreur lors de la suppression du board :", err);
     res.status(400).json({ error: err.message });
   }
 };

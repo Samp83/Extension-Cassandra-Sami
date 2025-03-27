@@ -12,6 +12,11 @@ export const useGetBoardsByProfile = (profileId) => {
       try {
         const res = await fetch(`http://localhost:3000/api/profiles/${profileId}/boards`);
         const data = await res.json();
+        if (!Array.isArray(data)) {
+          console.error("Mauvais format reçu pour les boards du profil :", data);
+          setBoards([]); 
+          return;
+        }
         setBoards(data);
         setIsLoading(false);
         console.log("Boards for profile:", profileId, data);

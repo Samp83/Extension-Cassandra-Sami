@@ -32,12 +32,19 @@ function App() {
     error: createBoardError,
   } = useCreateBoard();
   const { createElement } = useCreateElement();
-  const { profile: profiles } = useGetAllProfiles();
+  const { profile: profiles, refetch: refetchProfiles } = useGetAllProfiles();
   const { linkBoardToProfile } = useCreateProfileBoardLink();
 
   const deleteItem = (id) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
+
+  useEffect(() => {
+    if (showBoards) {
+      refetch();
+      refetchProfiles();
+    }
+  }, [showBoards]);
 
   const clearBoardElements = async (boardId) => {
     const res = await fetch(
@@ -147,6 +154,11 @@ function App() {
         `http://localhost:3000/api/boards/${boardId}/elements`
       );
       const data = await res.json();
+      if (!Array.isArray(data)) {
+        console.error("Erreur : la réponse n'est pas un tableau", data);
+        alert("Erreur inattendue lors du chargement des éléments du board.");
+        return;
+      }
       const loadedItems = data.map((el) => ({
         id: el.id,
         x: el.posX,
@@ -224,7 +236,10 @@ function App() {
         <h2 style={{ margin: 0, fontSize: "16px" }}>🧠 Moodboard Extension</h2>
         <div>
           <button
-            onClick={() => setShowBoards(!showBoards)}
+            onClick={() => setShowBoards(!showBoards)
+              
+            }
+            
             style={{
               background: "#555",
               color: "#fff",
@@ -448,11 +463,13 @@ function App() {
       />
       {showProfiles && (
         <ProfilesList
-          onSelectProfile={(profile) => {
-            setSelectedProfile(profile);
-            setShowProfiles(false);
-          }}
-        />
+  onSelectProfile={(profile) => {
+    setSelectedProfile(profile);
+    setShowProfiles(false);
+  }}
+  refetchBoards={refetch}
+  refetchProfiles={refetchProfiles}
+/>
       )}
     </div>
   );

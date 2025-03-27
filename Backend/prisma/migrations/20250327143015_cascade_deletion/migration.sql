@@ -21,7 +21,6 @@ CREATE TABLE `Boards` (
 CREATE TABLE `ProfileBoards` (
     `profileId` INTEGER NOT NULL,
     `boardId` INTEGER NOT NULL,
-    `role` VARCHAR(191) NULL,
     `joinedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`profileId`, `boardId`)
@@ -43,10 +42,10 @@ CREATE TABLE `Element` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `ProfileBoards` ADD CONSTRAINT `ProfileBoards_profileId_fkey` FOREIGN KEY (`profileId`) REFERENCES `Profile`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ProfileBoards` ADD CONSTRAINT `ProfileBoards_profileId_fkey` FOREIGN KEY (`profileId`) REFERENCES `Profile`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ProfileBoards` ADD CONSTRAINT `ProfileBoards_boardId_fkey` FOREIGN KEY (`boardId`) REFERENCES `Boards`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ProfileBoards` ADD CONSTRAINT `ProfileBoards_boardId_fkey` FOREIGN KEY (`boardId`) REFERENCES `Boards`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Element` ADD CONSTRAINT `Element_boardId_fkey` FOREIGN KEY (`boardId`) REFERENCES `Boards`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

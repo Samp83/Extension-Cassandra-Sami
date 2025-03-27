@@ -26,10 +26,10 @@ model Boards {
 }
 
 model ProfileBoards {
-  profile   Profile @relation(fields: [profileId], references: [id])
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int
 
-  board     Boards  @relation(fields: [boardId], references: [id])
+  board     Boards?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   Int
 
   

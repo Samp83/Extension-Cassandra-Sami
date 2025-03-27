@@ -6,7 +6,7 @@ import { useCreateProfileBoardLink } from "./hooks/useCreateProfileBoardLink";
 import { useGetAllBoards } from "./hooks/useGetAllBoards";
 import { useState } from "react";
 
-export default function ProfilesList({ onSelectProfile }) {
+export default function ProfilesList({ onSelectProfile, refetchBoards, refetchProfiles }) {
   const { profile: profiles, isLoading, error, refetch } = useGetAllProfiles();
   const { boards } = useGetAllBoards();
   const { createProfile } = useCreateProfile();
@@ -43,7 +43,8 @@ export default function ProfilesList({ onSelectProfile }) {
     if (!boardId) return alert("Veuillez sélectionner un board.");
     await linkBoardToProfile(profileId, parseInt(boardId));
     alert(`Board ${boardId} lié avec succès.`);
-    refetch();
+    refetchProfiles();
+    refetchBoards();
   };
 
   return (
