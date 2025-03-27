@@ -2,29 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { useCreateBoard } from "./hooks/useCreateBoard";
 import { useCreateElement } from "./hooks/useCreateElement";
 import { useGetAllBoards } from "./hooks/useGetAllBoards";
-import { useGetElementsByBoard } from "./hooks/useGetElementsByBoard";
+import { useCreateProfileBoardLink } from "./hooks/useCreateProfileBoardLink";
+import { useGetAllProfiles } from "./hooks/useGetAllProfiles";
 import BoardsList from "./BoardsList";
+import ProfilesList from "./ProfilesList";
 
 function App() {
   const [items, setItems] = useState([]);
   const [showBoards, setShowBoards] = useState(false);
+  const [showProfiles, setShowProfiles] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
   const containerRef = useRef(null);
 
-  const {
-    boards,
-    isLoading,
-    error: getAllBoardsError,
-    refetch,
-  } = useGetAllBoards();
-
-  const {
-    createBoard,
-    createdBoard,
-    isCreating,
-    error: createBoardError,
-  } = useCreateBoard();
-
+  const { boards, isLoading, error: getAllBoardsError, refetch } = useGetAllBoards();
+  const { createBoard, createdBoard, isCreating, error: createBoardError } = useCreateBoard();
   const { createElement } = useCreateElement();
+  const { profile: profiles } = useGetAllProfiles();
+  const { linkBoardToProfile } = useCreateProfileBoardLink();
 
   const deleteItem = (id) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
@@ -55,13 +49,7 @@ function App() {
         img.onload = () => {
           setItems((prev) => [
             ...prev,
-            {
-              ...baseItem,
-              type: "image",
-              content: reader.result,
-              width: img.width,
-              height: img.height,
-            },
+            { ...baseItem, type: "image", content: reader.result, width: img.width, height: img.height },
           ]);
         };
         img.src = reader.result;
@@ -72,66 +60,39 @@ function App() {
 
     if (data.types.includes("text/plain")) {
       const text = data.getData("text/plain");
-
       const tempDiv = document.createElement("div");
       tempDiv.style.position = "absolute";
       tempDiv.style.visibility = "hidden";
-      tempDiv.style.width = "auto";
-      tempDiv.style.height = "auto";
       tempDiv.style.maxWidth = "400px";
       tempDiv.style.padding = "1px";
       tempDiv.style.fontSize = "16px";
-      tempDiv.style.fontFamily = "Arial, sans-serif";
-      tempDiv.style.lineHeight = "1.4";
       tempDiv.innerText = text;
-
       document.body.appendChild(tempDiv);
-
       const measuredWidth = tempDiv.offsetWidth;
       const measuredHeight = tempDiv.offsetHeight;
-
       document.body.removeChild(tempDiv);
 
       setItems((prev) => [
         ...prev,
-        {
-          ...baseItem,
-          type: "text",
-          content: text,
-          width: measuredWidth + 1,
-          height: measuredHeight + 1,
-        },
+        { ...baseItem, type: "text", content: text, width: measuredWidth + 1, height: measuredHeight + 1 },
       ]);
       return;
     }
 
     if (data.types.includes("text/uri-list")) {
       const url = data.getData("text/uri-list");
-
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = () => {
         setItems((prev) => [
           ...prev,
-          {
-            ...baseItem,
-            type: "image",
-            content: url,
-            width: img.width,
-            height: img.height,
-          },
+          { ...baseItem, type: "image", content: url, width: img.width, height: img.height },
         ]);
       };
       img.onerror = () => {
         setItems((prev) => [
           ...prev,
-          {
-            ...baseItem,
-            type: "url",
-            content: url,
-            width: 300,
-            height: 60,
-          },
+          { ...baseItem, type: "url", content: url, width: 300, height: 60 },
         ]);
       };
       img.src = url;
@@ -142,9 +103,6 @@ function App() {
     try {
       const res = await fetch(`http://localhost:3000/api/boards/${boardId}/elements`);
       const data = await res.json();
-      console.log("Chargement du board :", boardId, data);
-  
-      // Transformer les éléments en format local `items`
       const loadedItems = data.map((el) => ({
         id: el.id,
         x: el.posX,
@@ -154,25 +112,20 @@ function App() {
         type: el.type,
         content: el.content,
       }));
-  
       setItems(loadedItems);
-      setShowBoards(false); // on peut fermer la liste
+      setShowBoards(false);
     } catch (err) {
       console.error("Erreur chargement éléments du board", err);
       alert("Erreur lors du chargement des éléments.");
     }
   };
-  
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const startDrag = (e, id) => {
     e.stopPropagation();
     const startX = e.clientX;
     const startY = e.clientY;
-
     const item = items.find((i) => i.id === id);
     if (!item) return;
 
@@ -181,9 +134,7 @@ function App() {
       const dy = moveEvent.clientY - startY;
 
       setItems((prev) =>
-        prev.map((el) =>
-          el.id === id ? { ...el, x: item.x + dx, y: item.y + dy } : el
-        )
+        prev.map((el) => (el.id === id ? { ...el, x: item.x + dx, y: item.y + dy } : el))
       );
     };
 
@@ -224,20 +175,37 @@ function App() {
         }}
       >
         <h2 style={{ margin: 0, fontSize: "16px" }}>🧠 Moodboard Extension</h2>
-        <button
-          onClick={() => setShowBoards(!showBoards)}
-          style={{
-            background: "#555",
-            color: "#fff",
-            padding: "6px 10px",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: 12,
-          }}
-        >
-          📋 Mes boards
-        </button>
+        <div>
+          <button
+            onClick={() => setShowBoards(!showBoards)}
+            style={{
+              background: "#555",
+              color: "#fff",
+              padding: "6px 10px",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: 12,
+              marginRight: 8,
+            }}
+          >
+            📋 Mes boards
+          </button>
+          <button
+            onClick={() => setShowProfiles(!showProfiles)}
+            style={{
+              background: "#888",
+              color: "#fff",
+              padding: "6px 10px",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+          >
+            👤 Profils
+          </button>
+        </div>
       </header>
 
       {/* ITEMS DROPPÉS */}
@@ -279,7 +247,7 @@ function App() {
             }}
             title="Supprimer"
           >
-            
+            ×
           </button>
 
           {item.type === "text" && <p>{item.content}</p>}
@@ -303,7 +271,7 @@ function App() {
         </div>
       ))}
 
-      {/* SAUVEGARDE DU BOARD + ÉLÉMENTS */}
+      {/* SAUVEGARDE */}
       <div style={{ position: "fixed", bottom: 10, left: 10 }}>
         <button
           onClick={async () => {
@@ -311,10 +279,29 @@ function App() {
             const description = prompt("Description du board :");
             if (!title) return;
 
+            let profileId = selectedProfile?.id;
+            if (!profileId) {
+              let fallback = profiles.find((p) => p.nom === "Non classés");
+              if (!fallback) {
+                const res = await fetch("http://localhost:3000/api/profiles", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    title: "Non classés",
+                    description: "Boards sans catégorie",
+                  }),
+                });
+                fallback = await res.json();
+              }
+              profileId = fallback.id;
+            }
+
             const newBoard = await createBoard(title, description);
             refetch();
 
-            if (!newBoard || !newBoard.id) return;
+            if (!newBoard || !newBoard.id || !profileId) return;
+
+            await linkBoardToProfile(profileId, newBoard.id);
 
             for (const item of items) {
               await createElement(
@@ -328,7 +315,7 @@ function App() {
               );
             }
 
-            alert("Board et éléments enregistrés !");
+            alert("Board, éléments et profil enregistrés !");
             setItems([]);
           }}
           disabled={isCreating}
@@ -358,7 +345,7 @@ function App() {
         )}
       </div>
 
-      {/* LISTE DES BOARDS */}
+      {/* LISTES */}
       <BoardsList
         visible={showBoards}
         boards={boards}
@@ -367,6 +354,14 @@ function App() {
         refetch={refetch}
         onLoadBoard={loadBoardElements}
       />
+      {showProfiles && (
+        <ProfilesList
+          onSelectProfile={(profile) => {
+            setSelectedProfile(profile);
+            setShowProfiles(false);
+          }}
+        />
+      )}
     </div>
   );
 }
